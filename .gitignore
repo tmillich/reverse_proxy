@@ -1,0 +1,8 @@
+*.dpkg-dist
+
+*.key
+*.crt
+*.pem
+
+data/portainer
+

@@ -1,0 +1,36 @@
+name: Build SSL
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: 5 4 1 * *
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Clear unused Configs
+      run: rm -rf ./nginx/config/sites-enabled/
+    - name: Create Symlinks
+      run: mkdir -p ./nginx/config/sites-enabled/ && 
+          cd ./nginx/config/sites-enabled/ && 
+          ln -s ../sites-available/default.ssl default.ssl && 
+          ln -s ../sites-available/jenkins.localhost.ssl jenkins.localhost.ssl && 
+          ln -s ../sites-available/portainer.localhost.ssl portainer.localhost.ssl
+    - name: Creating Certificate
+      run: mkdir ./nginx/certs &&  
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" 
+             -keyout ./nginx/certs/nginx-selfsigned.key -out ./nginx/certs/nginx-selfsigned.crt
+    - name: Creating Diffie-Hellman Parameter
+      run: openssl dhparam -out ./nginx/certs/dhparam.pem 1024
+    - name: Build Docker-Compose File
+      run: docker-compose build
+    - name: Run Docker-Compose 
+      run: docker-compose up -d

@@ -1,0 +1,33 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: 5 4 1 * *
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Clear unused Configs
+      run: rm -rf ./nginx/config/sites-enabled/
+    - name: Create Symlinks
+      run: mkdir -p ./nginx/config/sites-enabled/ && 
+          cd ./nginx/config/sites-enabled/ && 
+          ln -s ../sites-available/default default && 
+          ln -s ../sites-available/jenkins.localhost jenkins.localhost && 
+          ln -s ../sites-available/portainer.localhost portainer.localhost
+    - name: Edit Dockerfile
+      run: cat nginx.Dockerfile | head -n -4 > nginx.Dockerfile2 && 
+           mv nginx.Dockerfile2 nginx.Dockerfile
+    - name: Build Docker-Compose File
+      run: docker-compose build
+    - name: Run Docker-Compose 
+      run: docker-compose up -d
