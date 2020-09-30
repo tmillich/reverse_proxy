@@ -84,8 +84,21 @@ ln -s ./nginx/config/sites-available/<docker-service> ./nginx/config/sites-enabl
 ### 3. Run Docker-Compose
 
 ```bash
-docker-compose -d up
+docker-compose up -d
 ```
+
+### 4. [Optional] Trust Certificate locally
+
+We need to add the generated SSL certificate to the database that browser uses. For this we will use “certutil” utility which is part of the libnss3-tools package.
+```bash
+sudo apt-get update
+sudo apt-get install libnss3-tools
+```
+To add certificate to the database run the following command.
+```bash
+certutil -d sql:$HOME/.pki/nssdb -A -t "CT,c,c" -n "localhost" -i ./nginx/certs/nginx-selfsigned.crt
+```
+*localhost* represents the local domain you wanna choose. By choosing an other name simply replace your local domain name in the command and in the NGINX configurations.
 
 ## License
 
