@@ -98,7 +98,7 @@ To add certificate to the database run the following command.
 ```bash
 certutil -d sql:$HOME/.pki/nssdb -A -t "CT,c,c" -n "localhost" -i ./nginx/certs/nginx-selfsigned.crt
 ```
-*localhost* represents the local domain you wanna choose. By choosing an other name simply replace your local domain name in the command and in the NGINX configurations.
+*localhost* represents the local domain you wanna choose. By choosing an other name simply replace your local domain name in the command, edit the NGINX configurations and add one more entry in `/etc/hosts`.
 
 ## License
 
